@@ -34,6 +34,9 @@
                 <a-option v-for="item in state.satData" :key="item.name" :value="item.name">{{ item.name }}</a-option>
               </a-select>
             </a-form-item>
+            <a-form-item :label-col-style="{ width: '25%' }" field="satID" label="卫星ID">
+              <a-input-number :precision="0" v-model="state.satID" />
+            </a-form-item>
             <a-form-item :label-col-style="{ width: '25%' }" field="lng" label="台站经度">
               <a-input-number :precision="6" v-model="state.lng" />
             </a-form-item>
@@ -45,6 +48,7 @@
             </a-form-item>
             <a-form-item :label-col-style="{ width: '25%' }" label="">
               <a-space>
+                <a-button @click="initSat">获取卫星数据</a-button>
                 <a-button @click="getLocation">浏览器获取经纬度</a-button>
                 <a-button @click="scanLocation">手机扫码获取经纬度</a-button>
                 <a-button @click="getPass">获取卫星过境时间</a-button>
@@ -118,6 +122,7 @@ const state: {
   lng: number,
   lat: number,
   alt: number,
+  satID: number,
   tx: number,
   rx: number,
   txTone: number | undefined,
@@ -135,9 +140,10 @@ const state: {
   uuid: '',
   qrcode: '',
   visible: false,
-  showHide: 0,
+  showHide: 10,
   status: "点击写入按钮写入卫星数据到设备<br/><br/>",
   sat: '',
+  satID: 25544,
   satData: [],
   lng: 0,
   lat: 0,
@@ -232,7 +238,7 @@ const changeSat = async (sat: any) => {
 
 const initSat = async () => {
   setLoading(true)
-  const rst = await (await fetch('https://celestrak.org/NORAD/elements/amateur.txt')).text()
+  const rst = await (await fetch('https://celestrak.org/NORAD/elements/gp.php?CATNR='+state.satID+'&FORMAT=TLE')).text()
   const lines = rst.split(/\r?\n/);
   const sat = [];
   let _sat: any = {};
